@@ -774,15 +774,13 @@ class Automation:
         if self.ui_state != UiState.NOT_RUNNING:
             self.ui_state = UiState.GAME_ENDING
             if self.st.auto_join_game:
-                LOGGER.info("Waiting 10 seconds before restarting browser after game end")
-                time.sleep(10)
+                # 重启浏览器并重新进入游戏
                 LOGGER.info("Restarting browser after game end")
-                self.executor.stop()
-                time.sleep(2)
+                self.executor.stop()  # 关闭当前浏览器
+                time.sleep(2)  # 等待浏览器完全关闭
+                # 重新启动浏览器
                 self.executor.start(self.st.ms_url, None, self.st.browser_width, self.st.browser_height, self.st.enable_chrome_ext)
-                self.ui_state = UiState.NOT_RUNNING
-                # 强制触发自动加入逻辑
-                threading.Timer(3, self.decide_lobby_action).start()
+                self.ui_state = UiState.NOT_RUNNING  # 重置状态为未运行
         # if auto next. go to lobby, then next
         
     def on_exit_lobby(self):
