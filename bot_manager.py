@@ -53,6 +53,7 @@ class BotManager:
        
         self.bot_need_update:bool = True                # set this True to update bot in main thread
         self.mitm_proxinject_need_update:bool = False    # set this True to update mitm and prox inject in main thread
+        self.browser_needs_restart_after_game:bool = False
         self.is_loading_bot:bool = False                # is bot being loaded
         self.main_thread_exception:Exception = None     # Exception that had stopped the main thread
         self.game_exception:Exception = None            # game run time error (but does not break main thread)        
@@ -306,6 +307,19 @@ class BotManager:
                 
     def _loop_post_msg(self):
         # things to do in every loop after processing msg
+        if self.browser_needs_restart_after_game:
+            self.browser_needs_restart_after_game = False
+            if self.browser.is_running():
+                LOGGER.info("Game ended. Restarting browser in 5 seconds to join next game.")
+                self.browser.stop(True)
+                time.sleep(5)
+                self.start_browser()
+                # 等待浏览器启动并页面加载
+                while not self.browser.is_page_normal() and not self._stop_event.is_set():
+                    time.sleep(1)
+                LOGGER.info("Browser restarted and page loaded.")
+            return
+
         # check mitm
         if self.mitm_server.is_running() is False:
             self.game_exception = utils.MITMException("MITM server stopped")
@@ -427,6 +441,8 @@ class BotManager:
             self.browser.overlay_clear_guidance()
         self.game_exception = None
         self.automation.on_end_game()
+        if self.st.auto_join_game and self.browser.is_running():
+            self.browser_needs_restart_after_game = True
             
     
     def _update_overlay_conditions_met(self) -> bool:
