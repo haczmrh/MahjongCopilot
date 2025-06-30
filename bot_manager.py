@@ -310,9 +310,9 @@ class BotManager:
         if self.browser_needs_restart_after_game:
             self.browser_needs_restart_after_game = False
             if self.browser.is_running():
-                LOGGER.info("Game ended. Restarting browser in 5 seconds to join next game.")
+                LOGGER.info("Game ended. Restarting browser in 15 seconds to join next game.")
                 self.browser.stop(True)
-                time.sleep(5)
+                time.sleep(15)
                 self.start_browser()
                 # 等待浏览器启动并页面加载
                 while not self.browser.is_page_normal() and not self._stop_event.is_set():
