@@ -1,6 +1,6 @@
 mitmproxy==10.2.4
 playwright==1.42.0
-torch==2.2.1
+torch
 requests
 numpy
 pillow
